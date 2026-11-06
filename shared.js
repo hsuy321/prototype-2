@@ -31,8 +31,8 @@ window.MAP_STYLE = [
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
   { stylers: [{ saturation: -100 }] },
   { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#eeeeee' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#9a9a9a' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#e0e0e0' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e0e0e0' }] },
   { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] }
 ];
 
