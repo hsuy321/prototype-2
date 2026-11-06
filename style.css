@@ -1,0 +1,317 @@
+/* Type, spacing and colors: change them here */
+:root {
+  --type: 9pt;
+  /* all text */
+  --map-num: 9pt;
+  /* map numbers only */
+  --margin: 18pt;
+  --gutter: 9pt;
+  --space: 4.5pt;
+  --tab: 20pt;
+  /* Text page: width of the number column (the text starts here) */
+  --gray: #E0E0E0;
+  --o: calc(var(--map-num) * 0.05);
+  /* white outline on map numbers, scales with their size */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: #fff;
+  color: #000;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+  font-size: var(--type);
+  line-height: 1.1;
+  hyphens: none;
+  -webkit-hyphens: none;
+  overflow-wrap: normal;
+  /* no hyphenation anywhere */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+p {
+  margin: 0;
+}
+
+/* nav sits in column 1 */
+#nav {
+  position: fixed;
+  z-index: 1000;
+  top: var(--margin);
+  left: var(--margin);
+  width: calc((100vw - 2 * var(--margin) - 2 * var(--gutter)) / 3);
+}
+
+#nav a.active {
+  text-decoration: underline;
+}
+
+/* 3 column grid */
+.view {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: var(--gutter);
+  padding: var(--margin);
+}
+
+/* map (landing page) */
+#map {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: #f2f2f2;
+  transition: opacity .25s;
+}
+
+#gmap {
+  width: 100%;
+  height: 100%;
+}
+
+.pin a {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+  color: #000;
+  font-size: var(--map-num);
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow:
+    calc(var(--o) * -1) calc(var(--o) * -1) 0 #fff, calc(var(--o) * -1) 0 0 #fff,
+    calc(var(--o) * -1) var(--o) 0 #fff, 0 calc(var(--o) * -1) 0 #fff,
+    0 var(--o) 0 #fff, var(--o) calc(var(--o) * -1) 0 #fff,
+    var(--o) 0 0 #fff, var(--o) var(--o) 0 #fff;
+}
+
+.pin a:hover {
+  text-decoration: none;
+}
+
+/* information: text in column 2, citations in column 3, background images cycling behind (info.js) */
+body.info {
+  background: transparent;
+}
+
+.ibg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: center / cover no-repeat;
+  opacity: 0;
+  transition: opacity 2.6s ease-in-out;
+  /* the fade between images */
+}
+
+.ibg.on {
+  opacity: 1;
+}
+
+.about {
+  align-content: start;
+  row-gap: var(--space);
+}
+
+.about .para {
+  display: contents;
+}
+
+.about .para>p {
+  grid-column: 2;
+}
+
+.about .para>aside {
+  grid-column: 3;
+}
+
+.about sup {
+  font-size: .7em;
+  line-height: 0;
+}
+
+/* text: location + image are fixed, the 34 theses scroll behind everything */
+#stage {
+  position: fixed;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: var(--gutter);
+  padding: var(--margin) var(--margin) var(--space);
+  pointer-events: none;
+  /* the text behind stays scrollable */
+}
+
+#stage .inner {
+  grid-column: 2 / 4;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+#stage .inner>* {
+  pointer-events: auto;
+}
+
+/* keeps the image tooltip and the Location link working */
+#hero {
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+}
+
+/* 8:5, cropped */
+#hero img,
+#hero video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#list {
+  position: relative;
+  z-index: 1;
+  visibility: hidden;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: var(--gutter);
+  padding: var(--stage-h, 60vh) var(--margin) var(--pad-b, 40vh);
+  /* both set by text-page.js */
+}
+
+body.ready #list,
+.pv #list {
+  visibility: visible;
+}
+
+#list .content {
+  grid-column: 2 / 4;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: var(--tab) 1fr;
+  margin-bottom: var(--space);
+  color: var(--gray);
+}
+
+.entry:hover {
+  color: #000;
+  text-decoration: none;
+}
+
+.entry.on {
+  color: #000;
+}
+
+/* nav hover previews (see preview.js) */
+.pv {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+  overflow: hidden;
+}
+
+.pv,
+.pv * {
+  pointer-events: none !important;
+}
+
+.pv.on {
+  opacity: 1;
+}
+
+#pv-media {
+  z-index: -1;
+}
+
+/* behind all content */
+#pv-media>img,
+#pv-media>video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#pv-mask {
+  z-index: 6;
+  background: #fff;
+  mix-blend-mode: screen;
+}
+
+/* land white, roads/water show what is below */
+.pvmap {
+  width: 100%;
+  height: 100%;
+}
+
+#pv-pins {
+  z-index: 7;
+}
+
+#pv-content {
+  z-index: 8;
+  background: #fff;
+}
+
+html.pvbg,
+html.pvbg body {
+  background: transparent;
+}
+
+/* lets the media behind show */
+html.pvm #map {
+  opacity: 0;
+}
+
+@media (max-width: 800px) {
+  #nav {
+    width: auto;
+  }
+
+  .view {
+    padding-top: calc(var(--margin) + 4 * var(--type));
+  }
+
+  #stage {
+    padding-top: calc(var(--margin) + 4 * var(--type));
+  }
+
+  #stage .inner,
+  #list .content {
+    grid-column: 1 / -1;
+  }
+
+  .about .para>p,
+  .about .para>aside {
+    grid-column: 1 / -1;
+  }
+}
