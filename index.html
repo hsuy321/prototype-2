@@ -8,8 +8,12 @@
 </head>
 <body class="map" data-page="map">
 <nav id="nav">
-  <span class="title">1 Person, Nature</span><br>
-  <a href="index.html" class="active">Map</a>, <a href="text.html">Text</a>, <a href="information.html">Information</a>
+  <div class="head">
+    <span class="title">1 Person, Nature</span>
+    <div class="links"><a href="index.html" class="active">Map</a>, <a href="checklist.html">Checklist</a>, <a href="information.html">Information</a></div>
+    <a href="#" id="dir-toggle">Hide directory</a>
+  </div>
+  <div id="dir"></div>
 </nav>
 <div id="map"><div id="gmap"></div></div>
 <script src="config.js"></script>

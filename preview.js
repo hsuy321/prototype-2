@@ -1,12 +1,13 @@
 // Nav hover previews.
 //   hover Map          : the map's land appears over the current page; roads and water are see-through
-//   hover Text         : the Text page appears in place of the current content, starting at thesis 1
+//   hover Checklist    : the Checklist page appears in place of the current content, starting at thesis 1
+//   hover Details (map directory): that project's Checklist page
 //   hover Information  : its text appears in place of the current content (no background images until you click in)
 // Hover a number on the map: that project's archive image/video shows through the roads and water.
 (() => {
   const body = document.body, root = document.documentElement;
-  const cur = body.dataset.page; // map | text | info
-  const TARGETS = { 'index.html': 'map', 'text.html': 'text', 'information.html': 'info' };
+  const cur = body.dataset.page; // map | checklist | info
+  const TARGETS = { 'index.html': 'map', 'checklist.html': 'checklist', 'information.html': 'info' };
   const VIEW = { center: { lat: 40.7484, lng: -73.9857 }, zoom: 15 };
 
   const mk = id => {
@@ -26,6 +27,7 @@
     root.classList.remove('pvm');
     const v = mediaEl.querySelector('video'); if (v) v.pause();
     wantBg = false;
+    body.classList.remove('pvnav');
     // the page background goes back to white after the fade
     setTimeout(() => { if (!wantBg) root.classList.remove('pvbg'); }, 280);
   };
@@ -76,17 +78,29 @@
     return m ? m.outerHTML : '';
   }).catch(() => ''));
 
+  // Checklist page for one project, with its thesis right under the image (like the real page)
+  const renderChecklist = p => {
+    contentEl.scrollTop = 0;
+    contentEl.innerHTML = textMarkup(p);
+    const stage = contentEl.querySelector('#stage'), list = contentEl.querySelector('#list');
+    const last = list.querySelector('.entry:last-child');
+    list.style.setProperty('--stage-h', stage.offsetHeight + 'px');
+    list.style.setProperty('--pad-b', Math.max(innerHeight - stage.offsetHeight - last.offsetHeight - parseFloat(getComputedStyle(last).marginBottom), 0) + 1 + 'px');
+    const on = list.querySelector('.entry.on');
+    contentEl.scrollTop = on.getBoundingClientRect().top - stage.getBoundingClientRect().bottom;
+    contentEl.classList.add('on');
+  };
+  const showChecklist = p => { hide(); renderChecklist(p); }; // hover "More Information" in the map directory
+
   const show = t => {
     hide();
     const my = token, ok = () => my === token;
     if (t === cur) return;
+    body.classList.add('pvnav'); // hides the map directory while another page is previewed
     if (t === 'map') {
       ensureMask().then(() => { if (ok()) { syncView(); maskEl.classList.add('on'); } }).catch(() => { });
-    } else if (t === 'text') {
-      contentEl.innerHTML = textMarkup(PROJECTS[0]);
-      const stage = contentEl.querySelector('#stage');
-      contentEl.querySelector('#list').style.setProperty('--stage-h', stage.offsetHeight + 'px'); // thesis 1 right under the image
-      contentEl.classList.add('on');
+    } else if (t === 'checklist') {
+      renderChecklist(PROJECTS[0]);
     } else if (t === 'info') {
       info().then(html => {
         if (!ok() || !html) return;
@@ -126,5 +140,5 @@
   addEventListener('pageshow', hide);
 
   // the map page loads the mask ahead of time and keeps it in step with the map, so the hover is instant
-  window.PV = { warmMask: () => ensureMask().catch(() => { }), sync: syncView, showMedia, hide };
+  window.PV = { warmMask: () => ensureMask().catch(() => { }), sync: syncView, showMedia, showChecklist, hide };
 })();

@@ -11,6 +11,10 @@
   /* Text page: width of the number column (the text starts here) */
   --gray: #E0E0E0;
   --o: calc(var(--map-num) * 0.05);
+  --outline: calc(var(--o) * -1) calc(var(--o) * -1) 0 #fff, calc(var(--o) * -1) 0 0 #fff,
+    calc(var(--o) * -1) var(--o) 0 #fff, 0 calc(var(--o) * -1) 0 #fff,
+    0 var(--o) 0 #fff, var(--o) calc(var(--o) * -1) 0 #fff,
+    var(--o) 0 0 #fff, var(--o) var(--o) 0 #fff;
   /* white outline on map numbers, scales with their size */
 }
 
@@ -62,6 +66,83 @@ p {
   text-decoration: underline;
 }
 
+#nav {
+  pointer-events: none;
+  /* the empty part of the column does not block the page behind */
+}
+
+#nav a,
+#dir a {
+  pointer-events: auto;
+}
+
+#dir {
+  pointer-events: none;
+  /* only the words are clickable, so the map numbers under the directory still are */
+}
+
+#nav .links {
+  padding-left: var(--tab);
+}
+
+/* map page directory (first column, under the nav): scrolls, and its text disappears at the bottom edge of the nav (invisible line) */
+body.map #nav {
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body.map #nav .head {
+  flex: none;
+}
+
+#dir {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--margin);
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+#dir::-webkit-scrollbar {
+  display: none;
+}
+
+.dir-item {
+  margin-bottom: var(--space);
+}
+
+.dir-title {
+  display: grid;
+  grid-template-columns: var(--tab) 1fr;
+  width: max-content;
+  max-width: 100%;
+}
+
+.dir-sub {
+  padding-left: var(--tab);
+}
+
+#dir-toggle {
+  display: block;
+  width: max-content;
+  margin-top: var(--space);
+}
+
+body.dir-off #dir {
+  display: none;
+}
+
+/* while a nav preview is open the directory steps aside */
+.pvnav #dir {
+  visibility: hidden;
+}
+
+.pvnav #dir-toggle {
+  visibility: hidden;
+}
+
 /* 3 column grid */
 .view {
   position: relative;
@@ -98,11 +179,7 @@ p {
   font-size: var(--map-num);
   line-height: 1;
   white-space: nowrap;
-  text-shadow:
-    calc(var(--o) * -1) calc(var(--o) * -1) 0 #fff, calc(var(--o) * -1) 0 0 #fff,
-    calc(var(--o) * -1) var(--o) 0 #fff, 0 calc(var(--o) * -1) 0 #fff,
-    0 var(--o) 0 #fff, var(--o) calc(var(--o) * -1) 0 #fff,
-    var(--o) 0 0 #fff, var(--o) var(--o) 0 #fff;
+  text-shadow: var(--outline);
 }
 
 .pin a:hover {
@@ -150,7 +227,7 @@ body.info {
   line-height: 0;
 }
 
-/* text: location + image are fixed, the 34 theses scroll behind everything */
+/* checklist: location + image are fixed, the 34 theses scroll behind everything */
 #stage {
   position: fixed;
   z-index: 5;
@@ -176,8 +253,8 @@ body.info {
   pointer-events: auto;
 }
 
-/* keeps the image tooltip and the Location link working */
 #hero {
+  position: relative;
   width: 100%;
   aspect-ratio: 8 / 5;
   overflow: hidden;
@@ -192,6 +269,27 @@ body.info {
   object-fit: cover;
 }
 
+/* Show details / Hide details: top right, on the same line as the location */
+#loc {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gutter);
+}
+
+#meta-btn {
+  flex: none;
+}
+
+/* the details sit under the image, tabbed in once; the theses move down to make room */
+#meta {
+  display: none;
+  padding-left: var(--tab);
+}
+
+#stage.open #meta {
+  display: block;
+}
+
 #list {
   position: relative;
   z-index: 1;
@@ -200,7 +298,7 @@ body.info {
   grid-template-columns: repeat(3, 1fr);
   column-gap: var(--gutter);
   padding: var(--stage-h, 60vh) var(--margin) var(--pad-b, 40vh);
-  /* both set by text-page.js */
+  /* both set by checklist.js */
 }
 
 body.ready #list,
@@ -295,6 +393,16 @@ html.pvm #map {
 @media (max-width: 800px) {
   #nav {
     width: auto;
+  }
+
+  body.map #nav {
+    bottom: auto;
+    width: calc(100vw - 2 * var(--margin));
+  }
+
+  #dir {
+    max-height: 30vh;
+    flex: none;
   }
 
   .view {
