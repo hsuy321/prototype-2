@@ -75,10 +75,10 @@ window.attachText = () => {
 // open = details panel shown (default). Used by the page and by the hover previews.
 window.textMarkup = (p, open = true) => {
   attachText();
-  const loc = `${p.location ? p.location + ' ' : ''}(<a href="index.html?focus=${p.id}">Map</a>)`; const entries = PROJECTS.map(q =>
+  const entries = PROJECTS.map(q =>
     `<a class="entry${q.id === p.id ? ' on' : ''}" href="checklist.html?id=${q.id}" data-id="${q.id}"><span>${q.id}</span><p>${q.text}</p></a>`).join('');
-  return `<div id="stage"${open ? ' class="open"' : ''}><div class="inner"><p id="loc"><span>${loc}</span><a id="meta-btn" href="#">${open ? 'Hide' : 'Show'} details</a></p>` +
+  return `<div id="stage"${open ? ' class="open"' : ''}><div class="inner"><p id="loc"><a id="meta-btn" href="#">${open ? 'Hide' : 'Show'} details</a></p>` +
     `<div id="hero">${mediaHTML(archiveSrc(p), `onerror="this.style.display='none'"`)}</div>` +
-    `<div id="meta">${p.meta.map(m => `<p>${esc(m)}</p>`).join('')}</div></div></div>` +
+    `<div id="meta">${p.meta.map(m => `<p>${esc(m)}</p>`).join('')}<p><a href="index.html?focus=${p.id}">View on map</a></p></div></div></div>` +
     `<main id="list"><div class="content" id="entries">${entries}</div></main>`;
 };

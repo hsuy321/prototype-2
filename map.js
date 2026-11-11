@@ -1,13 +1,14 @@
 // Map (landing page): directory in the first column + Google Maps with numbered pins.
 // index.html?focus=2 zooms to number 2.
 
-// Directory: number + title. Details = its Checklist entry (hover previews it), Visit = Google Maps.
-// Only projects that have lat/lng in data.js are listed, and only the ones on screen right now (see filterDir below).
+// Directory: number + title. Details = its Checklist page (hover previews it), Visit = Google Maps.
+// Only projects with lat/lng in data.js are listed, and only the ones on screen right now (see filterDir below).
+// p.maps in data.js overrides the Visit link.
 const dir = document.getElementById('dir');
 const byId = id => PROJECTS.find(p => String(p.id) === String(id));
 dir.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
   const title = p.title || (p.meta && p.meta[1]) || '';
-  const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`; // p.maps in data.js overrides
+  const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
   return `<div class="dir-item" data-id="${p.id}">` +
     `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
     `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
@@ -79,12 +80,11 @@ loadGoogle().then(() => {
   if (p && p.lat != null) { map.setCenter({ lat: Number(p.lat), lng: Number(p.lng) }); map.setZoom(17); }
 
   // the directory lists only the numbers on screen right now
-  const items = [...dir.querySelectorAll('.dir-item')].map(el => ({ el, pos: { lat: Number(byId(el.dataset.id).lat), lng: Number(byId(el.dataset.id).lng) } }));
   let queued = false;
   const filterDir = () => {
     queued = false;
     const b = map.getBounds();
-    if (b) items.forEach(({ el, pos }) => { el.hidden = !b.contains(pos); });
+    if (b) dir.querySelectorAll('.dir-item').forEach(el => { const p = byId(el.dataset.id); el.hidden = !b.contains({ lat: Number(p.lat), lng: Number(p.lng) }); });
   };
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(filterDir); } };
   map.addListener('bounds_changed', queue);

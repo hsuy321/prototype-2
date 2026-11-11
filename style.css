@@ -90,7 +90,7 @@ body.map #nav {
 
 body.map #nav .head {
   flex: none;
-  padding-bottom: 0pt;
+  padding-bottom: 9pt;
   /* the break between the nav links and the first directory entry (fixed, not tied to --space) */
 }
 
@@ -270,17 +270,7 @@ body.info {
   object-fit: cover;
 }
 
-/* Show details / Hide details: top right, on the same line as the location */
-#loc {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gutter);
-}
-
-#meta-btn {
-  flex: none;
-}
-
+/* Show details / Hide details sits top left, above the image */
 /* the details sit under the image, tabbed in once; the theses move down to make room */
 #meta {
   display: none;
