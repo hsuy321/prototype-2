@@ -5,7 +5,6 @@
   const p = PROJECTS.find(p => String(p.id) === id) || PROJECTS[0];
   history.scrollRestoration = 'manual';
 
-  document.title = `${p.id} | 1 Person, Nature`;
 
   // Show details / Hide details: open by default; stays as you left it when you go to another thesis
   let open = true;

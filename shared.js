@@ -36,6 +36,22 @@ window.MAP_STYLE = [
   { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] }
 ];
 
+// Map labels depend on zoom. Zoomed out (<= AREA_MAX): borough / neighborhood names.
+// Zoomed in (>= STREET_MIN): street names and numbers. In between: no labels. Change the two numbers to taste.
+window.AREA_MAX = 14;
+window.STREET_MIN = 15;
+window.labelBand = z => z >= STREET_MIN ? 'street' : z <= AREA_MAX ? 'area' : 'none';
+const labelInk = f => [
+  { featureType: f, elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
+  { featureType: f, elementType: 'labels.text.fill', stylers: [{ color: '#000000' }] },
+  { featureType: f, elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }, { weight: 3 }] }
+];
+window.mapStyle = band => band === 'area'
+  ? MAP_STYLE.concat(labelInk('administrative'), [{ featureType: 'administrative.land_parcel', elementType: 'labels', stylers: [{ visibility: 'off' }] }])
+  : band === 'street'
+    ? MAP_STYLE.concat(labelInk('road'), [{ featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] }])
+    : MAP_STYLE;
+
 // Hover preview mask: land is white, roads and water are black.
 // Blended over the page (screen), whatever is behind shows through the roads and water only.
 window.MASK_STYLE = [

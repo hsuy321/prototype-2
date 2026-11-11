@@ -6,16 +6,14 @@
   /* map numbers only */
   --margin: 18pt;
   --gutter: 9pt;
-  --space: 4.5pt;
+  --space: 0pt;
   --tab: 20pt;
   /* Text page: width of the number column (the text starts here) */
   --gray: #E0E0E0;
-  --o: calc(var(--map-num) * 0.05);
-  --outline: calc(var(--o) * -1) calc(var(--o) * -1) 0 #fff, calc(var(--o) * -1) 0 0 #fff,
-    calc(var(--o) * -1) var(--o) 0 #fff, 0 calc(var(--o) * -1) 0 #fff,
-    0 var(--o) 0 #fff, var(--o) calc(var(--o) * -1) 0 #fff,
-    var(--o) 0 0 #fff, var(--o) var(--o) 0 #fff;
-  /* white outline on map numbers, scales with their size */
+  --pin: 12pt;
+  --split: 33.3333vw;
+  /* map page: the first third is white (nav + directory), the map fills the other two thirds */
+  /* map numbers: diameter of the white circle */
 }
 
 * {
@@ -81,22 +79,23 @@ p {
   /* only the words are clickable, so the map numbers under the directory still are */
 }
 
-#nav .links {
-  padding-left: var(--tab);
-}
-
 /* map page directory (first column, under the nav): scrolls, and its text disappears at the bottom edge of the nav (invisible line) */
 body.map #nav {
   bottom: 0;
   display: flex;
   flex-direction: column;
+  padding-right: var(--margin);
+  /* lines wrap before the edge of the column */
 }
 
 body.map #nav .head {
   flex: none;
+  padding-bottom: 0pt;
+  /* the break between the nav links and the first directory entry (fixed, not tied to --space) */
 }
 
 #dir {
+  text-wrap: pretty;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -124,24 +123,11 @@ body.map #nav .head {
   padding-left: var(--tab);
 }
 
-#dir-toggle {
-  display: block;
-  width: max-content;
-  margin-top: var(--space);
-}
-
-body.dir-off #dir {
-  display: none;
-}
-
 /* while a nav preview is open the directory steps aside */
 .pvnav #dir {
   visibility: hidden;
 }
 
-.pvnav #dir-toggle {
-  visibility: hidden;
-}
 
 /* 3 column grid */
 .view {
@@ -157,7 +143,10 @@ body.dir-off #dir {
 /* map (landing page) */
 #map {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--split);
   z-index: 1;
   background: #f2f2f2;
   transition: opacity .25s;
@@ -179,11 +168,23 @@ body.dir-off #dir {
   font-size: var(--map-num);
   line-height: 1;
   white-space: nowrap;
-  text-shadow: var(--outline);
 }
 
 .pin a:hover {
   text-decoration: none;
+}
+
+/* white number on a black circle */
+.pin a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pin);
+  height: var(--pin);
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
 }
 
 /* information: text in column 2, citations in column 3, background images cycling behind (info.js) */
@@ -345,21 +346,8 @@ body.ready #list,
   opacity: 1;
 }
 
-#pv-media {
-  z-index: -1;
-}
-
-/* behind all content */
-#pv-media>img,
-#pv-media>video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 #pv-mask {
+  left: var(--split);
   z-index: 6;
   background: #fff;
   mix-blend-mode: screen;
@@ -371,23 +359,9 @@ body.ready #list,
   height: 100%;
 }
 
-#pv-pins {
-  z-index: 7;
-}
-
 #pv-content {
   z-index: 8;
   background: #fff;
-}
-
-html.pvbg,
-html.pvbg body {
-  background: transparent;
-}
-
-/* lets the media behind show */
-html.pvm #map {
-  opacity: 0;
 }
 
 @media (max-width: 800px) {
@@ -395,8 +369,14 @@ html.pvm #map {
     width: auto;
   }
 
+  #map,
+  #pv-mask {
+    left: 0;
+  }
+
   body.map #nav {
     bottom: auto;
+    background: #fff;
     width: calc(100vw - 2 * var(--margin));
   }
 
