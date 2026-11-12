@@ -75,8 +75,8 @@ p {
 }
 
 #dir {
-  pointer-events: none;
-  /* only the words are clickable, so the map numbers under the directory still are */
+  pointer-events: auto;
+  /* the whole first column takes the scroll wheel, not just the words */
 }
 
 /* map page directory (first column, under the nav): scrolls, and its text disappears at the bottom edge of the nav (invisible line) */
@@ -110,6 +110,14 @@ body.map #nav .head {
 
 .dir-item {
   margin-bottom: var(--space);
+  color: var(--gray);
+}
+
+/* gray until hovered (here or on the map) or selected on the map */
+.dir-item:hover,
+.dir-item.hot,
+.dir-item.on {
+  color: #000;
 }
 
 .dir-title {
@@ -121,11 +129,6 @@ body.map #nav .head {
 
 .dir-sub {
   padding-left: var(--tab);
-}
-
-/* while a nav preview is open the directory steps aside */
-.pvnav #dir {
-  visibility: hidden;
 }
 
 
@@ -174,7 +177,7 @@ body.map #nav .head {
   text-decoration: none;
 }
 
-/* white number on a black circle */
+/* white number on a black circle (does not change on hover or selection) */
 .pin a {
   display: flex;
   align-items: center;
@@ -186,6 +189,7 @@ body.map #nav .head {
   color: #fff;
   cursor: pointer;
 }
+
 
 /* information: text in column 2, citations in column 3, background images cycling behind (info.js) */
 body.info {
@@ -274,6 +278,9 @@ body.info {
 /* the details sit under the image, tabbed in once; the theses move down to make room */
 #meta {
   display: none;
+}
+
+#meta p:not(:first-child) {
   padding-left: var(--tab);
 }
 
@@ -317,7 +324,7 @@ body.ready #list,
   color: #000;
 }
 
-/* nav hover previews (see preview.js) */
+/* Details hover preview (see preview.js) */
 .pv {
   position: fixed;
   inset: 0;
@@ -336,19 +343,6 @@ body.ready #list,
   opacity: 1;
 }
 
-#pv-mask {
-  left: var(--split);
-  z-index: 6;
-  background: #fff;
-  mix-blend-mode: screen;
-}
-
-/* land white, roads/water show what is below */
-.pvmap {
-  width: 100%;
-  height: 100%;
-}
-
 #pv-content {
   z-index: 8;
   background: #fff;
@@ -359,8 +353,7 @@ body.ready #list,
     width: auto;
   }
 
-  #map,
-  #pv-mask {
+  #map {
     left: 0;
   }
 

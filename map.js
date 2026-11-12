@@ -1,22 +1,39 @@
 // Map (landing page): directory in the first column + Google Maps with numbered pins.
 // index.html?focus=2 zooms to number 2.
 
-// Directory: number + title. Details = its Checklist page (hover previews it), Visit = Google Maps.
-// Only projects with lat/lng in data.js are listed, and only the ones on screen right now (see filterDir below).
-// p.maps in data.js overrides the Visit link.
+// Directory (markup in shared.js): Details = its Checklist page (hover previews it), Visit = Google Maps.
+// Only the places on screen right now are listed (see filterDir below).
 const dir = document.getElementById('dir');
 const byId = id => PROJECTS.find(p => String(p.id) === String(id));
-dir.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
-  const title = p.title || (p.meta && p.meta[1]) || '';
-  const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-  return `<div class="dir-item" data-id="${p.id}">` +
-    `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
-    `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
-}).join('');
-// click a number on the map or a title here: the map zooms to it
+buildDir(dir);
+// Two states link a number on the map with its directory entry (both go black, otherwise gray):
+//   hot = hovered on either side, on = selected (click a number or a title; click empty map to deselect)
+const pinEls = {}; // id -> the number's <a>, filled in below
+let selected = null;
+const itemOf = id => dir.querySelector(`.dir-item[data-id="${id}"]`);
+const flag = (id, cls, on) => {
+  if (pinEls[id]) pinEls[id].classList.toggle(cls, on);
+  const it = itemOf(id);
+  if (it) it.classList.toggle(cls, on);
+};
+const select = id => {
+  if (selected != null) flag(selected, 'on', false);
+  selected = id;
+  if (id != null) { flag(id, 'on', true); const it = itemOf(id); if (it) it.scrollIntoView({ block: 'nearest' }); }
+};
+// click a number on the map or a title here: select it and zoom to it
 const zoomTo = p => {
+  select(p.id);
   if (window.mainMap) { mainMap.setZoom(17); mainMap.panTo({ lat: Number(p.lat), lng: Number(p.lng) }); }
 };
+dir.addEventListener('mouseover', e => {
+  const it = e.target.closest('.dir-item'), from = e.relatedTarget;
+  if (it && !(from && from.closest && from.closest('.dir-item') === it)) flag(it.dataset.id, 'hot', true);
+});
+dir.addEventListener('mouseout', e => {
+  const it = e.target.closest('.dir-item'), to = e.relatedTarget;
+  if (it && !(to && to.closest && to.closest('.dir-item') === it)) flag(it.dataset.id, 'hot', false);
+});
 dir.addEventListener('click', e => {
   const a = e.target.closest('.dir-title');
   if (!a || !window.mainMap) return; // map not loaded yet: the link reloads the page zoomed in
@@ -42,7 +59,7 @@ loadGoogle().then(() => {
     disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
     styles: mapStyle(labelBand(15))
   });
-  window.mainMap = map; // the hover previews follow this view
+  window.mainMap = map;
 
   // labels change with zoom (see labelBand in shared.js)
   let band = labelBand(15);
@@ -60,6 +77,9 @@ loadGoogle().then(() => {
       this.el.className = 'pin';
       this.el.style.position = 'absolute';
       this.el.innerHTML = `<a href="#">${p.id}</a>`;
+      pinEls[p.id] = this.el.firstChild;
+      this.el.addEventListener('mouseenter', () => flag(p.id, 'hot', true));
+      this.el.addEventListener('mouseleave', () => flag(p.id, 'hot', false));
       google.maps.OverlayView.preventMapHitsFrom(this.el); // a click on a number is not a click on the map
       this.el.addEventListener('click', e => { e.preventDefault(); zoomTo(p); });
     }
@@ -77,7 +97,8 @@ loadGoogle().then(() => {
 
   const focus = new URLSearchParams(location.search).get('focus');
   const p = PROJECTS.find(p => String(p.id) === focus);
-  if (p && p.lat != null) { map.setCenter({ lat: Number(p.lat), lng: Number(p.lng) }); map.setZoom(17); }
+  if (p && p.lat != null) { map.setCenter({ lat: Number(p.lat), lng: Number(p.lng) }); map.setZoom(17); select(p.id); }
+  map.addListener('click', () => select(null)); // click empty map: deselect
 
   // the directory lists only the numbers on screen right now
   let queued = false;
@@ -90,6 +111,4 @@ loadGoogle().then(() => {
   map.addListener('bounds_changed', queue);
   map.addListener('idle', queue);
 
-  google.maps.event.addListenerOnce(map, () => { if (window.PV) PV.warmMask(); });
-  map.addListener('idle', () => { if (window.PV) PV.sync(); }); // keeps the nav hover mask loaded where you are
 }).catch(e => console.error('Google Maps failed to load. Check the key in config.js.', e));

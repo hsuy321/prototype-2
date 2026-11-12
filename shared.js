@@ -43,7 +43,7 @@ window.STREET_MIN = 15;
 window.labelBand = z => z >= STREET_MIN ? 'street' : z <= AREA_MAX ? 'area' : 'none';
 const labelInk = f => [
   { featureType: f, elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
-  { featureType: f, elementType: 'labels.text.fill', stylers: [{ color: '#000000' }] },
+  { featureType: f, elementType: 'labels.text.fill', stylers: [{ color: '#E0E0E0' }] },
   { featureType: f, elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }, { weight: 3 }] }
 ];
 window.mapStyle = band => band === 'area'
@@ -52,19 +52,20 @@ window.mapStyle = band => band === 'area'
     ? MAP_STYLE.concat(labelInk('road'), [{ featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] }])
     : MAP_STYLE;
 
-// Hover preview mask: land is white, roads and water are black.
-// Blended over the page (screen), whatever is behind shows through the roads and water only.
-window.MASK_STYLE = [
-  { elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#000000' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#000000' }] }
-];
+// Directory (first column of the map page, also shown when you hover Map on the other pages):
+// number + title, then Details (its Checklist page) and Visit (Google Maps). Only projects with lat/lng are listed.
+// p.maps in data.js overrides the Visit link.
+window.buildDir = el => {
+  el.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
+    const title = p.title || (p.meta && p.meta[1]) || '';
+    const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+    return `<div class="dir-item" data-id="${p.id}">` +
+      `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
+      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
+  }).join('');
+};
 
-// Checklist page markup (also used by the Checklist hover preview): fixed location + image, then the 34 theses.
+// Checklist page markup (also used by the Details hover preview). The details list meta in order: #number first, then the rest.: fixed location + image, then the 34 theses.
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 window.attachText = () => {
   if (PROJECTS._text) return;
@@ -77,8 +78,8 @@ window.textMarkup = (p, open = true) => {
   attachText();
   const entries = PROJECTS.map(q =>
     `<a class="entry${q.id === p.id ? ' on' : ''}" href="checklist.html?id=${q.id}" data-id="${q.id}"><span>${q.id}</span><p>${q.text}</p></a>`).join('');
-  return `<div id="stage"${open ? ' class="open"' : ''}><div class="inner"><p id="loc"><a id="meta-btn" href="#">${open ? 'Hide' : 'Show'} details</a></p>` +
+  return `<div id="stage"${open ? ' class="open"' : ''}><div class="inner"><p id="loc"><a id="meta-btn" href="#">${open ? 'Hide' : 'Show'} details</a>, <a href="index.html?focus=${p.id}">View on map</a></p>` +
     `<div id="hero">${mediaHTML(archiveSrc(p), `onerror="this.style.display='none'"`)}</div>` +
-    `<div id="meta">${p.meta.map(m => `<p>${esc(m)}</p>`).join('')}<p><a href="index.html?focus=${p.id}">View on map</a></p></div></div></div>` +
+    `<div id="meta">${p.meta.map(m => `<p>${esc(m)}</p>`).join('')}</div></div></div>` +
     `<main id="list"><div class="content" id="entries">${entries}</div></main>`;
 };
