@@ -90,8 +90,8 @@ body.map #nav {
 
 body.map #nav .head {
   flex: none;
-  padding-bottom: 9pt;
-  /* the break between the nav links and the first directory entry (fixed, not tied to --space) */
+  padding-bottom: 0;
+  /* no gap between the nav links and the first directory entry. Add padding here for a break (9pt = one line) */
 }
 
 #dir {
@@ -227,6 +227,12 @@ body.info {
   grid-column: 3;
 }
 
+.about p {
+  /* first line flush left, every line after it tabbed in; resets per paragraph */
+  padding-left: var(--tab);
+  text-indent: calc(-1 * var(--tab));
+}
+
 .about sup {
   font-size: .7em;
   line-height: 0;
@@ -275,13 +281,18 @@ body.info {
 }
 
 /* Show details / Hide details sits top left, above the image */
-/* the details sit under the image, tabbed in once; the theses move down to make room */
+/* the details sit under the image; the theses move down to make room */
 #meta {
   display: none;
 }
 
-#meta p:not(:first-child) {
+/* the #number sits flush left, everything after it is tabbed in */
+#meta p {
   padding-left: var(--tab);
+}
+
+#meta p:first-child {
+  padding-left: 0;
 }
 
 #stage.open #meta {
@@ -313,11 +324,6 @@ body.ready #list,
   grid-template-columns: var(--tab) 1fr;
   margin-bottom: var(--space);
   color: var(--gray);
-}
-
-.entry:hover {
-  color: #000;
-  text-decoration: none;
 }
 
 .entry.on {
@@ -386,3 +392,10 @@ body.ready #list,
     grid-column: 1 / -1;
   }
 }
+/* Checklist: scrolling always lands an entry right under the image (scroll-padding is set by checklist.js) */
+html:has(#entries) { scroll-snap-type: y mandatory; }
+#entries .entry { scroll-snap-align: start; }
+
+/* Checklist: plain arrow over the text instead of the text-selection cursor (links keep the pointer) */
+#list, #stage { cursor: default; }
+#stage a { cursor: pointer; }

@@ -1,4 +1,4 @@
-// Checklist page: location + image fixed, the 34 theses scroll behind. checklist.html?id=3 (no id = thesis 1)
+// Checklist page: location + image fixed, the 30 titles scroll behind. checklist.html?id=3 (no id = 1)
 (() => {
   const $ = id => document.getElementById(id);
   const id = new URLSearchParams(location.search).get('id');
@@ -18,43 +18,45 @@
     try { sessionStorage.setItem('specInfo', on ? '1' : '0'); } catch (err) {}
   };
   setInfo(open);
-  btn.addEventListener('click', e => { e.preventDefault(); setInfo(!open); setStage(); }); // text moves to make room
+  btn.addEventListener('click', e => { e.preventDefault(); setInfo(!open); setStage(); align(entries.querySelector('.entry.on'), false); }); // text moves to make room
 
   // The list starts right under the fixed block. The space after the last thesis is only as big as
-  // needed to still scroll thesis 34 up under the image.
+  // needed to still scroll the last entry up under the image.
   const setStage = () => {
     const last = entries.lastElementChild;
     const need = innerHeight - stage.offsetHeight - last.offsetHeight - parseFloat(getComputedStyle(last).marginBottom);
     list.style.setProperty('--stage-h', stage.offsetHeight + 'px');
+    document.documentElement.style.scrollPaddingTop = stage.getBoundingClientRect().bottom + 'px'; // snap point: right under the image
     list.style.setProperty('--pad-b', Math.max(need, 0) + 1 + 'px');
   };
-  // scroll so the selected thesis sits directly under the image
-  const align = smooth => {
-    const el = entries.querySelector('.entry.on');
+  // scroll so an entry sits directly under the image
+  const align = (el, smooth) => {
     const top = el.getBoundingClientRect().top + scrollY - stage.getBoundingClientRect().bottom;
     scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
   };
 
-  // click another thesis: normal page load of that one, and the text slides from where it was.
-  // click the current thesis: slide it back under the image.
-  entries.addEventListener('click', e => {
-    const a = e.target.closest('.entry');
-    if (!a) return;
-    if (a.dataset.id === String(p.id)) { e.preventDefault(); align(true); return; }
-    try { sessionStorage.setItem('specScroll', String(scrollY)); } catch (err) {}
-  });
+  // the entry sitting under the image is the current one: scrolling swaps image, details and map link
+  let cur = String(p.id);
+  const show = q => {
+    cur = String(q.id);
+    entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === cur));
+    $('hero').innerHTML = mediaHTML(archiveSrc(q), `onerror="this.style.display='none'"`);
+    $('meta').innerHTML = metaHTML(q);
+    stage.querySelector('#loc a:last-child').href = 'index.html?focus=' + q.id;
+    try { history.replaceState(null, '', 'checklist.html?id=' + q.id); } catch (err) {}
+  };
+  let tick = false;
+  const sync = () => {
+    tick = false;
+    const line = stage.getBoundingClientRect().bottom;
+    const el = [...entries.children].find(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2 > line; });
+    if (el && el.dataset.id !== cur) show(PROJECTS.find(q => String(q.id) === el.dataset.id));
+  };
+  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(sync); } }, { passive: true });
 
   // the image box has a fixed 8:5 shape, so the layout can be set right away
   setStage();
-  let from = null;
-  try { from = sessionStorage.getItem('specScroll'); sessionStorage.removeItem('specScroll'); } catch (err) {}
-  if (from !== null) {
-    scrollTo(0, Number(from)); // where the text was on the previous thesis
-    document.body.classList.add('ready');
-    requestAnimationFrame(() => requestAnimationFrame(() => align(true)));
-  } else {
-    align(false);
-    document.body.classList.add('ready');
-  }
-  addEventListener('resize', () => { setStage(); align(false); });
+  align(entries.querySelector('.entry.on'), false);
+  document.body.classList.add('ready');
+  addEventListener('resize', () => { setStage(); align(entries.querySelector('.entry.on'), false); });
 })();
