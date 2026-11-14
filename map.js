@@ -98,6 +98,11 @@ loadGoogle().then(() => {
   const focus = new URLSearchParams(location.search).get('focus');
   const p = PROJECTS.find(p => String(p.id) === focus);
   if (p && p.lat != null) { map.setCenter({ lat: Number(p.lat), lng: Number(p.lng) }); map.setZoom(17); select(p.id); }
+  else { // no ?focus=: start zoomed out just far enough to show every number
+    const all = new google.maps.LatLngBounds();
+    PROJECTS.forEach(q => { if (q.lat != null && q.lng != null) all.extend({ lat: Number(q.lat), lng: Number(q.lng) }); });
+    if (!all.isEmpty()) map.fitBounds(all, 48); // 48px of breathing room so no circle touches the edge
+  }
   map.addListener('click', () => select(null)); // click empty map: deselect
 
   // the directory lists only the numbers on screen right now
