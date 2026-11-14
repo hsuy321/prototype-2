@@ -10,7 +10,7 @@ const PROJECTS = [
   },
   {
     id: 2, lat: 40.7708, lng: -73.9849,
-    title: "How to Build a Life Worth Living with DBT",
+    title: "The Importance of Taking Initiative and Being Proactive",
     archive: "images/archive/1.mp4"
   },
   {
@@ -25,7 +25,7 @@ const PROJECTS = [
   },
   {
     id: 5, lat: 40.7221, lng: -73.9959,
-    title: "Garden Your Way to Better Health and Nutrition",
+    title: "A unique career in Supply Chain Management",
     archive: "images/archive/1.mp4"
   },
   {
@@ -35,7 +35,7 @@ const PROJECTS = [
   },
   {
     id: 7, lat: 40.7189, lng: -74.0029,
-    title: "Why are masks important? Cloth Face Covering FAQs",
+    title: "Six Benefits of Sobriety",
     archive: "images/archive/1.mp4"
   },
   {
@@ -50,7 +50,7 @@ const PROJECTS = [
   },
   {
     id: 10, lat: 40.7815, lng: -73.9716,
-    title: "What Is the Definition of Sobriety? What It Really Means",
+    title: "Regenerative Therapy",
     archive: "images/archive/1.mp4"
   },
   {
@@ -60,7 +60,7 @@ const PROJECTS = [
   },
   {
     id: 12, lat: 40.7326, lng: -73.9914,
-    title: "Visions 2023: The Crayon Perspective",
+    title: "Moment of Zen, Five Months, and New Beginnings",
     archive: "images/archive/1.mp4"
   },
   {
@@ -70,7 +70,7 @@ const PROJECTS = [
   },
   {
     id: 14, lat: 40.7551, lng: -73.9784,
-    title: "Skillfinder International-Precision Hiring",
+    title: "Skillfinder International",
     archive: "images/archive/1.mp4"
   },
   {
@@ -80,7 +80,7 @@ const PROJECTS = [
   },
   {
     id: 16, lat: 40.744, lng: -73.9814,
-    title: "Community Support Fuels Quality Heart Care",
+    title: "Hawaii Natural Medicine",
     archive: "images/archive/1.mp4"
   },
   {
