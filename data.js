@@ -30,7 +30,7 @@ const PROJECTS = [
   },
   {
     id: 6, lat: 40.7433, lng: -73.9938,
-    title: "Fayetteville First United Methodist Church: Serving meals and restoring hope",
+    title: "Have a Safe and Healthy Summer with These Tips",
     archive: "images/archive/1.mp4"
   },
   {
@@ -40,52 +40,52 @@ const PROJECTS = [
   },
   {
     id: 8, lat: 40.74, lng: -74.0014,
-    title: "Holiday Healthy Eating Tips to Avoid Weight Gain",
+    title: "Fayetteville First United Methodist Church: Serving meals and restoring hope",
     archive: "images/archive/1.mp4"
   },
   {
     id: 9, lat: 40.7162, lng: -73.9981,
-    title: "Understand Ketamine for CRPS & Arachnoiditis",
+    title: "Holiday Healthy Eating Tips to Avoid Weight Gain",
     archive: "images/archive/1.mp4"
   },
   {
     id: 10, lat: 40.7815, lng: -73.9716,
-    title: "Regenerative Therapy",
+    title: "Guide to Ketamine for Treatment-Resistant Depression",
     archive: "images/archive/1.mp4"
   },
   {
     id: 11, lat: 40.764, lng: -73.9686,
-    title: "Optimize Your Circadian Rhythm With Ideal Light Exposure",
+    title: "Regenerative Therapy",
     archive: "images/archive/1.mp4"
   },
   {
     id: 12, lat: 40.7326, lng: -73.9914,
-    title: "Moment of Zen, Five Months, and New Beginnings",
+    title: "Optimize Your Circadian Rhythm With Ideal Light Exposure",
     archive: "images/archive/1.mp4"
   },
   {
     id: 13, lat: 40.7294, lng: -74.0075,
-    title: "63 Free Happy Life Images & Photos",
+    title: "Moment of Zen, Five Months, and New Beginnings",
     archive: "images/archive/1.mp4"
   },
   {
     id: 14, lat: 40.7551, lng: -73.9784,
-    title: "Skillfinder International",
+    title: "63 Free Happy Life Images & Photos",
     archive: "images/archive/1.mp4"
   },
   {
     id: 15, lat: 40.7775, lng: -73.9825,
-    title: "Susie Rathbone Hypnotherapist",
+    title: "Skillfinder International",
     archive: "images/archive/1.mp4"
   },
   {
     id: 16, lat: 40.744, lng: -73.9814,
-    title: "Hawaii Natural Medicine",
+    title: "Susie Rathbone Hypnotherapist",
     archive: "images/archive/1.mp4"
   },
   {
     id: 17, lat: 40.7192, lng: -74.0029,
-    title: "The Importance of Taking Initiative and Being Proactive",
+    title: "Hawaii Natural Medicine",
     archive: "images/archive/1.mp4"
   },
   {
