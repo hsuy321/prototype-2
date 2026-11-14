@@ -62,7 +62,7 @@ window.buildDir = el => {
     const visit = visitUrl(p);
     return `<div class="dir-item" data-id="${p.id}">` +
       `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
-      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
+      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visit}" target="_blank" rel="noopener">Directions</a></div></div>`;
   }).join('');
 };
 
