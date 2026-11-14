@@ -57,27 +57,22 @@ window.mapStyle = band => band === 'area'
 // p.maps in data.js overrides the Visit link.
 window.buildDir = el => {
   el.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
-    const title = p.title || (p.meta && p.meta[1]) || '';
+    const title = p.title || '';
     const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
     return `<div class="dir-item" data-id="${p.id}">` +
       `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
-      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
+      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visit}" target="_blank" rel="noopener">Directions</a></div></div>`;
   }).join('');
 };
 
-// Checklist page markup (also used by the Details hover preview). The details list meta in order: #number first, then the rest.: fixed location + image, then the 30 titles.
+// Checklist page markup (also used by the Details hover preview). Fixed link + image, then the 30 titles.
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-// details: everything except the title (the title is the list entry itself)
-window.metaHTML = p => p.meta.filter((m, i) => i !== 1).map((m, i) => {
-  const n = String(m).match(/^#(\d+)$/); // the #number links to its Adobe Stock page
-  return i === 0 && n ? `<p><a href="https://stock.adobe.com/images/id/${n[1]}" target="_blank" rel="noopener">${esc(m)}</a></p>` : `<p>${esc(m)}</p>`;
-}).join('');
-// open = details panel shown (default). Used by the page and by the hover previews.
-window.textMarkup = (p, open = true) => {
+// Used by the page and by the hover preview.
+window.textMarkup = p => {
   const entries = PROJECTS.map(q =>
-    `<div class="entry${q.id === p.id ? ' on' : ''}" data-id="${q.id}"><span>${q.id}</span><p>${esc(q.meta[1])}</p></div>`).join('');
-  return `<div id="stage"${open ? ' class="open"' : ''}><div class="inner"><p id="loc"><a id="meta-btn" href="#">${open ? 'Hide' : 'Show'} details</a>, <a href="index.html?focus=${p.id}">View on map</a></p>` +
+    `<div class="entry${q.id === p.id ? ' on' : ''}" data-id="${q.id}"><span>${q.id}</span><p>${esc(q.title)}</p></div>`).join('');
+  return `<div id="stage"><div class="inner"><p id="loc"><a href="index.html?focus=${p.id}">Back</a></p>` +
     `<div id="hero">${mediaHTML(archiveSrc(p), `onerror="this.style.display='none'"`)}</div>` +
-    `<div id="meta">${metaHTML(p)}</div></div></div>` +
+    `</div></div>` +
     `<main id="list"><div class="content" id="entries">${entries}</div></main>`;
 };

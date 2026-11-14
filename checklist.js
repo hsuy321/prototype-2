@@ -6,19 +6,8 @@
   history.scrollRestoration = 'manual';
 
 
-  // Show details / Hide details: open by default; stays as you left it when you go to another thesis
-  let open = true;
-  try { const v = sessionStorage.getItem('specInfo'); if (v !== null) open = v === '1'; } catch (err) {}
-  $('app').innerHTML = textMarkup(p, open);
-  const stage = $('stage'), list = $('list'), entries = $('entries'), btn = $('meta-btn');
-  const setInfo = on => {
-    open = on;
-    stage.classList.toggle('open', on);
-    btn.textContent = on ? 'Hide details' : 'Show details';
-    try { sessionStorage.setItem('specInfo', on ? '1' : '0'); } catch (err) {}
-  };
-  setInfo(open);
-  btn.addEventListener('click', e => { e.preventDefault(); setInfo(!open); setStage(); align(entries.querySelector('.entry.on'), false); }); // text moves to make room
+  $('app').innerHTML = textMarkup(p);
+  const stage = $('stage'), list = $('list'), entries = $('entries');
 
   // The list starts right under the fixed block. The space after the last thesis is only as big as
   // needed to still scroll the last entry up under the image.
@@ -35,14 +24,13 @@
     scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
   };
 
-  // the entry sitting under the image is the current one: scrolling swaps image, details and map link
+  // the entry sitting under the image is the current one: scrolling swaps the image and the map link
   let cur = String(p.id);
   const show = q => {
     cur = String(q.id);
     entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === cur));
     $('hero').innerHTML = mediaHTML(archiveSrc(q), `onerror="this.style.display='none'"`);
-    $('meta').innerHTML = metaHTML(q);
-    stage.querySelector('#loc a:last-child').href = 'index.html?focus=' + q.id;
+    stage.querySelector('#loc a').href = 'index.html?focus=' + q.id;
     try { history.replaceState(null, '', 'checklist.html?id=' + q.id); } catch (err) {}
   };
   let tick = false;
