@@ -75,12 +75,12 @@ const PROJECTS = [
   },
   {
     id: 15, lat: 40.7775, lng: -73.9825,
-    title: "Susie Rathbone Hypnotherapist » Coach & Mentor, Norwich, Norfolk",
+    title: "Susie Rathbone Hypnotherapist",
     archive: "images/archive/1.mp4"
   },
   {
     id: 16, lat: 40.744, lng: -73.9814,
-    title: "Community Support Fuels Quality Heart Care - Fisher-Titus",
+    title: "Community Support Fuels Quality Heart Care",
     archive: "images/archive/1.mp4"
   },
   {

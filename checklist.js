@@ -24,13 +24,14 @@
     scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
   };
 
-  // the entry sitting under the image is the current one: scrolling swaps the image and the map link
+  // the entry sitting under the image is the current one: scrolling swaps the image and the Back / Directions links
   let cur = String(p.id);
   const show = q => {
     cur = String(q.id);
     entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === cur));
     $('hero').innerHTML = mediaHTML(archiveSrc(q), `onerror="this.style.display='none'"`);
-    stage.querySelector('#loc a').href = 'index.html?focus=' + q.id;
+    $('loc-back').href = 'index.html?focus=' + q.id;
+    $('loc-dir').href = visitUrl(q);
     try { history.replaceState(null, '', 'checklist.html?id=' + q.id); } catch (err) {}
   };
   let tick = false;

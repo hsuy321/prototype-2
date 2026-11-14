@@ -55,13 +55,14 @@ window.mapStyle = band => band === 'area'
 // Directory (first column of the map page, also shown when you hover Map on the other pages):
 // number + title, then Details (its Checklist page) and Visit (Google Maps). Only projects with lat/lng are listed.
 // p.maps in data.js overrides the Visit link.
+window.visitUrl = p => p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
 window.buildDir = el => {
   el.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
     const title = p.title || '';
-    const visit = p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+    const visit = visitUrl(p);
     return `<div class="dir-item" data-id="${p.id}">` +
       `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
-      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visit}" target="_blank" rel="noopener">Directions</a></div></div>`;
+      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">Details</a>, <a href="${visit}" target="_blank" rel="noopener">Visit</a></div></div>`;
   }).join('');
 };
 
@@ -71,7 +72,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replac
 window.textMarkup = p => {
   const entries = PROJECTS.map(q =>
     `<div class="entry${q.id === p.id ? ' on' : ''}" data-id="${q.id}"><span>${q.id}</span><p>${esc(q.title)}</p></div>`).join('');
-  return `<div id="stage"><div class="inner"><p id="loc"><a href="index.html?focus=${p.id}">Back</a></p>` +
+  return `<div id="stage"><div class="inner"><p id="loc"><a id="loc-back" href="index.html?focus=${p.id}">Back</a>, <a id="loc-dir" href="${visitUrl(p)}" target="_blank" rel="noopener">Directions</a></p>` +
     `<div id="hero">${mediaHTML(archiveSrc(p), `onerror="this.style.display='none'"`)}</div>` +
     `</div></div>` +
     `<main id="list"><div class="content" id="entries">${entries}</div></main>`;
