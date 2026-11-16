@@ -1,21 +1,5 @@
-@font-face {
-  font-family: "Standard";
-  src: url("fonts/standard-bold-webfont.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Standard";
-  src: url("fonts/standard-bold-italic-webfont.woff") format("woff");
-  font-weight: 700;
-  font-style: italic;
-}
-
 :root {
-  /* typeface: comment one line out to swap */
-  --font: "Standard", "Times New Roman", Times, serif;
-  /* --font: "Times New Roman", Times, serif; */
+  --font: "Arial", "Helvetica", sans-serif;
   --type: 9pt;
   /* all text */
   --map-num: 9pt;
@@ -45,7 +29,7 @@ body {
 
 body {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: 400;
   font-size: var(--type);
   line-height: 1.1;
   hyphens: none;
@@ -182,7 +166,7 @@ body.map #nav .head {
   top: 0;
   transform: translate(-50%, -50%);
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: 400;
   color: #000;
   font-size: var(--map-num);
   line-height: 1;
