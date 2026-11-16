@@ -13,6 +13,9 @@
 }
 
 :root {
+  /* typeface: comment one line out to swap */
+  --font: "Standard", "Times New Roman", Times, serif;
+  /* --font: "Times New Roman", Times, serif; */
   --type: 9pt;
   /* all text */
   --map-num: 9pt;
@@ -41,7 +44,7 @@ body {
 }
 
 body {
-  font-family: "Standard", "Times New Roman", Times, serif;
+  font-family: var(--font);
   font-weight: 700;
   font-size: var(--type);
   line-height: 1.1;
@@ -178,7 +181,7 @@ body.map #nav .head {
   left: 0;
   top: 0;
   transform: translate(-50%, -50%);
-  font-family: "Standard", "Times New Roman", Times, serif;
+  font-family: var(--font);
   font-weight: 700;
   color: #000;
   font-size: var(--map-num);
@@ -229,6 +232,7 @@ body.map #nav .head {
   grid-column: 3;
 }
 
+/* paragraphs: first line tabbed in, the rest flush left; the very first paragraph is flush left throughout */
 .about .para>p {
   text-indent: var(--tab);
 }
@@ -237,6 +241,7 @@ body.map #nav .head {
   text-indent: 0;
 }
 
+/* footnotes: number flush left, wrapped lines tabbed in */
 .about aside p {
   padding-left: var(--tab);
   text-indent: calc(-1 * var(--tab));
