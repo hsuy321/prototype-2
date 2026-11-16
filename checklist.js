@@ -1,51 +1,42 @@
-// Checklist page: location + image fixed, the 30 titles scroll behind. checklist.html?id=3 (no id = 1)
-(() => {
-  const $ = id => document.getElementById(id);
-  const id = new URLSearchParams(location.search).get('id');
-  const p = PROJECTS.find(p => String(p.id) === id) || PROJECTS[0];
-  history.scrollRestoration = 'manual';
+// Index page: the image is fixed at the top and the titles scroll behind it. checklist.html?id=3 starts at 3.
+// The title sitting right under the image is the current one; scrolling swaps the image and links.
+const $ = id => document.getElementById(id);
+const stage = $('stage'), list = $('list'), entries = $('entries');
+history.scrollRestoration = 'manual';
 
+entries.innerHTML = PROJECTS.map(p => `<div class="entry" data-id="${p.id}"><span>${p.id}</span><p>${esc(p.title)}</p></div>`).join('');
 
-  $('app').innerHTML = textMarkup(p);
-  const stage = $('stage'), list = $('list'), entries = $('entries');
+let current;
+const show = p => {
+  current = String(p.id);
+  entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === current));
+  $('hero').innerHTML = mediaHTML(p);
+  $('back').href = 'index.html?focus=' + p.id;
+  $('directions').href = visitUrl(p);
+  history.replaceState(null, '', '?id=' + p.id);
+};
 
-  // The list starts right under the fixed block. The space after the last thesis is only as big as
-  // needed to still scroll the last entry up under the image.
-  const setStage = () => {
-    const last = entries.lastElementChild;
-    const need = innerHeight - stage.offsetHeight - last.offsetHeight - parseFloat(getComputedStyle(last).marginBottom);
-    list.style.setProperty('--stage-h', stage.offsetHeight + 'px');
-    document.documentElement.style.scrollPaddingTop = stage.getBoundingClientRect().bottom + 'px'; // snap point: right under the image
-    list.style.setProperty('--pad-b', Math.max(need, 0) + 1 + 'px');
-  };
-  // scroll so an entry sits directly under the image
-  const align = (el, smooth) => {
-    const top = el.getBoundingClientRect().top + scrollY - stage.getBoundingClientRect().bottom;
-    scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
-  };
+// The list starts right under the image, and ends with just enough space to scroll the last title up under it.
+const layout = () => {
+  const last = entries.lastElementChild, h = stage.getBoundingClientRect().height;
+  list.style.setProperty('--stage-h', h + 'px');
+  list.style.setProperty('--pad-b', Math.max(innerHeight - h - last.offsetHeight - parseFloat(getComputedStyle(last).marginBottom), 0) + 1 + 'px');
+  document.documentElement.style.scrollPaddingTop = h + 'px'; // snap point: right under the image
+  scrollTo(0, entries.querySelector('.entry.on').getBoundingClientRect().top + scrollY - h);
+};
 
-  // the entry sitting under the image is the current one: scrolling swaps the image and the Back / Directions links
-  let cur = String(p.id);
-  const show = q => {
-    cur = String(q.id);
-    entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === cur));
-    $('hero').innerHTML = mediaHTML(archiveSrc(q), `onerror="this.style.display='none'"`);
-    $('loc-back').href = 'index.html?focus=' + q.id;
-    $('loc-dir').href = visitUrl(q);
-    try { history.replaceState(null, '', 'checklist.html?id=' + q.id); } catch (err) {}
-  };
-  let tick = false;
-  const sync = () => {
-    tick = false;
+show(PROJECTS.find(p => String(p.id) === new URLSearchParams(location.search).get('id')) || PROJECTS[0]);
+layout();
+addEventListener('resize', layout);
+
+let queued = false;
+addEventListener('scroll', () => {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => {
+    queued = false;
     const line = stage.getBoundingClientRect().bottom;
     const el = [...entries.children].find(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2 > line; });
-    if (el && el.dataset.id !== cur) show(PROJECTS.find(q => String(q.id) === el.dataset.id));
-  };
-  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(sync); } }, { passive: true });
-
-  // the image box has a fixed 8:5 shape, so the layout can be set right away
-  setStage();
-  align(entries.querySelector('.entry.on'), false);
-  document.body.classList.add('ready');
-  addEventListener('resize', () => { setStage(); align(entries.querySelector('.entry.on'), false); });
-})();
+    if (el && el.dataset.id !== current) show(PROJECTS.find(p => String(p.id) === el.dataset.id));
+  });
+}, { passive: true });

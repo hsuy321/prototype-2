@@ -1,65 +1,51 @@
-// Map (landing page): directory in the first column + Google Maps with numbered pins.
-// index.html?focus=2 zooms to number 2.
-
-// Directory (markup in shared.js): Details = its Checklist page (hover previews it), Visit = Google Maps.
-// Only the places on screen right now are listed (see filterDir below).
+// Map page: the directory (first column) and Google Maps with numbered pins.
+// index.html?focus=3 opens zoomed in on number 3; otherwise the map fits every number.
 const dir = document.getElementById('dir');
 const byId = id => PROJECTS.find(p => String(p.id) === String(id));
+let map;
+const pos = p => ({ lat: p.lat, lng: p.lng }); // plain lat/lng, the only shape Google Maps is given
 buildDir(dir);
-// Two states link a number on the map with its directory entry (both go black, otherwise gray):
-//   hot = hovered on either side, on = selected (click a number or a title; click empty map to deselect)
-const pinEls = {}; // id -> the number's <a>, filled in below
+
+// A number on the map and its directory entry share two states (the entry goes from gray to black):
+// hot = hovered on either side, on = selected (click a number or a title; click empty map to deselect)
 let selected = null;
 const itemOf = id => dir.querySelector(`.dir-item[data-id="${id}"]`);
-const flag = (id, cls, on) => {
-  if (pinEls[id]) pinEls[id].classList.toggle(cls, on);
-  const it = itemOf(id);
-  if (it) it.classList.toggle(cls, on);
-};
+const flag = (id, cls, on) => itemOf(id).classList.toggle(cls, on);
 const select = id => {
   if (selected != null) flag(selected, 'on', false);
   selected = id;
-  if (id != null) { flag(id, 'on', true); const it = itemOf(id); if (it) it.scrollIntoView({ block: 'nearest' }); }
+  if (id != null) { flag(id, 'on', true); itemOf(id).scrollIntoView({ block: 'nearest' }); }
 };
-// click a number on the map or a title here: select it and zoom to it
 const zoomTo = p => {
   select(p.id);
-  if (window.mainMap) { mainMap.setZoom(17); mainMap.panTo({ lat: Number(p.lat), lng: Number(p.lng) }); }
+  if (map) { map.setZoom(17); map.panTo(pos(p)); }
 };
-dir.addEventListener('mouseover', e => {
-  const it = e.target.closest('.dir-item'), from = e.relatedTarget;
-  if (it && !(from && from.closest && from.closest('.dir-item') === it)) flag(it.dataset.id, 'hot', true);
-});
-dir.addEventListener('mouseout', e => {
-  const it = e.target.closest('.dir-item'), to = e.relatedTarget;
-  if (it && !(to && to.closest && to.closest('.dir-item') === it)) flag(it.dataset.id, 'hot', false);
-});
+
+dir.addEventListener('mouseover', e => { const it = e.target.closest('.dir-item'); if (it) flag(it.dataset.id, 'hot', true); });
+dir.addEventListener('mouseout', e => { const it = e.target.closest('.dir-item'); if (it) flag(it.dataset.id, 'hot', false); });
 dir.addEventListener('click', e => {
   const a = e.target.closest('.dir-title');
-  if (!a || !window.mainMap) return; // map not loaded yet: the link reloads the page zoomed in
+  if (!a || !map) return; // map not loaded yet: the link reloads the page zoomed in
   e.preventDefault();
   zoomTo(byId(a.parentNode.dataset.id));
 });
-// hover Details: that project's Checklist page appears
-dir.addEventListener('mouseover', e => {
-  const a = e.target.closest('.dir-info'), from = e.relatedTarget;
-  if (!a || !window.PV || (from && from.closest && from.closest('.dir-info') === a)) return;
-  PV.showChecklist(byId(a.closest('.dir-item').dataset.id));
-});
-dir.addEventListener('mouseout', e => {
-  const a = e.target.closest('.dir-info'), to = e.relatedTarget;
-  if (!a || !window.PV || (to && to.closest && to.closest('.dir-info') === a)) return;
-  PV.hide();
-});
 
+// Hover "View": that project's image appears over the map, where it sits on the Index page.
+const preview = document.body.appendChild(Object.assign(document.createElement('div'), { id: 'preview' }));
+dir.addEventListener('mouseover', e => {
+  if (!e.target.closest('.dir-info')) return;
+  preview.innerHTML = `<div id="stage"><div class="inner"><div id="hero">${mediaHTML(byId(e.target.closest('.dir-item').dataset.id))}</div></div></div>`;
+  preview.classList.add('on');
+});
+dir.addEventListener('mouseout', e => { if (e.target.closest('.dir-info')) preview.classList.remove('on'); });
+addEventListener('pageshow', () => preview.classList.remove('on'));
 
 loadGoogle().then(() => {
-  const map = new google.maps.Map(document.getElementById('gmap'), {
+  map = new google.maps.Map(document.getElementById('gmap'), {
     center: { lat: 40.7484, lng: -73.9857 }, zoom: 15, minZoom: 2,
     disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
     styles: mapStyle(labelBand(15))
   });
-  window.mainMap = map;
 
   // labels change with zoom (see labelBand in shared.js)
   let band = labelBand(15);
@@ -68,20 +54,19 @@ loadGoogle().then(() => {
     if (b !== band) { band = b; map.setOptions({ styles: mapStyle(b) }); }
   });
 
-  // Numbers as plain HTML (white number on a black circle). Click one to zoom to it.
+  // Numbers: white on a black circle. Click one to zoom to it.
   class Pin extends google.maps.OverlayView {
     constructor(p) {
       super();
-      this.pos = new google.maps.LatLng(Number(p.lat), Number(p.lng));
+      this.pos = new google.maps.LatLng(p.lat, p.lng);
       this.el = document.createElement('div');
       this.el.className = 'pin';
       this.el.style.position = 'absolute';
       this.el.innerHTML = `<a href="#">${p.id}</a>`;
-      pinEls[p.id] = this.el.firstChild;
       this.el.addEventListener('mouseenter', () => flag(p.id, 'hot', true));
       this.el.addEventListener('mouseleave', () => flag(p.id, 'hot', false));
-      google.maps.OverlayView.preventMapHitsFrom(this.el); // a click on a number is not a click on the map
       this.el.addEventListener('click', e => { e.preventDefault(); zoomTo(p); });
+      google.maps.OverlayView.preventMapHitsFrom(this.el); // a click on a number is not a click on the map
     }
     onAdd() { this.getPanes().overlayMouseTarget.appendChild(this.el); }
     draw() {
@@ -90,18 +75,17 @@ loadGoogle().then(() => {
     }
     onRemove() { this.el.remove(); }
   }
-  PROJECTS.filter(p => p.lat != null && p.lng != null).forEach(p => {
-    try { new Pin(p).setMap(map); }
-    catch (e) { console.warn('Pin failed for project', p.id, p, e); }
-  });
+  PROJECTS.forEach(p => new Pin(p).setMap(map));
 
-  const focus = new URLSearchParams(location.search).get('focus');
-  const p = PROJECTS.find(p => String(p.id) === focus);
-  if (p && p.lat != null) { map.setCenter({ lat: Number(p.lat), lng: Number(p.lng) }); map.setZoom(17); select(p.id); }
-  else { // no ?focus=: start zoomed out just far enough to show every number
+  const focus = byId(new URLSearchParams(location.search).get('focus'));
+  if (focus) {
+    map.setCenter(pos(focus));
+    map.setZoom(17);
+    select(focus.id);
+  } else { // start zoomed out just far enough to show every number
     const all = new google.maps.LatLngBounds();
-    PROJECTS.forEach(q => { if (q.lat != null && q.lng != null) all.extend({ lat: Number(q.lat), lng: Number(q.lng) }); });
-    if (!all.isEmpty()) map.fitBounds(all, 48); // 48px of breathing room so no circle touches the edge
+    PROJECTS.forEach(p => all.extend(pos(p)));
+    map.fitBounds(all, 48); // 48px of room so no circle touches the edge
   }
   map.addListener('click', () => select(null)); // click empty map: deselect
 
@@ -109,11 +93,10 @@ loadGoogle().then(() => {
   let queued = false;
   const filterDir = () => {
     queued = false;
-    const b = map.getBounds();
-    if (b) dir.querySelectorAll('.dir-item').forEach(el => { const p = byId(el.dataset.id); el.hidden = !b.contains({ lat: Number(p.lat), lng: Number(p.lng) }); });
+    const bounds = map.getBounds();
+    if (bounds) dir.querySelectorAll('.dir-item').forEach(el => { el.hidden = !bounds.contains(pos(byId(el.dataset.id))); });
   };
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(filterDir); } };
   map.addListener('bounds_changed', queue);
   map.addListener('idle', queue);
-
 }).catch(e => console.error('Google Maps failed to load. Check the key in config.js.', e));

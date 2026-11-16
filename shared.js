@@ -1,31 +1,33 @@
-// Shared by every page: image folder, Google Maps loader, map styles, Checklist page markup.
+// Shared by every page: media helpers, Google Maps loader, map style, directory markup.
 
-// Folder with the images/videos for the Checklist page and the map hover: images/archive/1.jpg ... 30.jpg
-// To use another folder name, change it here. For one project with a video or another file name,
-// add  archive: "images/archive/3.mp4"  to that project in data.js
-window.ARCHIVE_DIR = 'images/archive/';
-window.archiveSrc = p => p.archive || `${ARCHIVE_DIR}${p.id}.jpg`;
-window.isVideo = s => /\.(mp4|webm|mov|m4v)$/i.test(s);
-window.mediaHTML = (src, attrs = '') => isVideo(src)
-  ? `<video src="${src}" autoplay muted loop playsinline ${attrs}></video>`
-  : `<img src="${src}" alt="" ${attrs}>`;
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-// Loads the Google Maps script once (only when something needs the map).
-window.loadGoogle = () => {
-  if (window.google && google.maps && google.maps.Map) return Promise.resolve();
-  if (window.__gm) return window.__gm;
-  window.__gm = new Promise((res, rej) => {
-    window.__gmReady = res;
-    const s = document.createElement('script');
-    s.async = true; s.onerror = rej;
-    s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(GOOGLE_MAPS_KEY) + '&loading=async&callback=__gmReady';
-    document.head.appendChild(s);
-  });
-  return window.__gm;
+// The image or video for a project: its `archive` in data.js, else images/archive/<id>.jpg
+const archiveSrc = p => p.archive || `images/archive/${p.id}.jpg`;
+const mediaHTML = p => {
+  const src = archiveSrc(p), hide = `onerror="this.style.display='none'"`;
+  return /\.(mp4|webm|mov|m4v)$/i.test(src)
+    ? `<video src="${src}" autoplay muted loop playsinline ${hide}></video>`
+    : `<img src="${src}" alt="" ${hide}>`;
 };
 
-// The map you see
-window.MAP_STYLE = [
+const visitUrl = p => `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+
+// Loads the Google Maps script (key in config.js).
+const loadGoogle = () => new Promise((resolve, reject) => {
+  if (window.google && google.maps && google.maps.Map) return resolve();
+  window.__gmReady = resolve;
+  const s = document.createElement('script');
+  s.async = true; s.onerror = reject;
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(GOOGLE_MAPS_KEY) + '&loading=async&callback=__gmReady';
+  document.head.appendChild(s);
+});
+
+// Map style: no labels, gray roads and water. Labels come back by zoom:
+// zoomed out (<= AREA_MAX) neighborhood names, zoomed in (>= STREET_MIN) street names, in between none.
+const AREA_MAX = 14, STREET_MIN = 15;
+const labelBand = z => z >= STREET_MIN ? 'street' : z <= AREA_MAX ? 'area' : 'none';
+const MAP_STYLE = [
   { elementType: 'labels', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
@@ -35,45 +37,22 @@ window.MAP_STYLE = [
   { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#e0e0e0' }] },
   { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] }
 ];
-
-// Map labels depend on zoom. Zoomed out (<= AREA_MAX): borough / neighborhood names.
-// Zoomed in (>= STREET_MIN): street names and numbers. In between: no labels. Change the two numbers to taste.
-window.AREA_MAX = 14;
-window.STREET_MIN = 15;
-window.labelBand = z => z >= STREET_MIN ? 'street' : z <= AREA_MAX ? 'area' : 'none';
 const labelInk = f => [
   { featureType: f, elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
   { featureType: f, elementType: 'labels.text.fill', stylers: [{ color: '#E0E0E0' }] },
   { featureType: f, elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }, { weight: 3 }] }
 ];
-window.mapStyle = band => band === 'area'
+const mapStyle = band => band === 'area'
   ? MAP_STYLE.concat(labelInk('administrative'), [{ featureType: 'administrative.land_parcel', elementType: 'labels', stylers: [{ visibility: 'off' }] }])
   : band === 'street'
     ? MAP_STYLE.concat(labelInk('road'), [{ featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] }])
     : MAP_STYLE;
 
-// Directory (first column of the map page, also shown when you hover Map on the other pages):
-// number + title, then Details (its Checklist page) and Visit (Google Maps). Only projects with lat/lng are listed.
-// p.maps in data.js overrides the Visit link.
-window.visitUrl = p => p.maps || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-window.buildDir = el => {
-  el.innerHTML = PROJECTS.filter(p => p.lat != null && p.lng != null).map(p => {
-    const title = p.title || '';
-    const visit = visitUrl(p);
-    return `<div class="dir-item" data-id="${p.id}">` +
-      `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(title)}</span></a>` +
-      `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visit}" target="_blank" rel="noopener">Directions</a></div></div>`;
-  }).join('');
-};
-
-// Checklist page markup (also used by the Details hover preview). Fixed link + image, then the 30 titles.
-const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-// Used by the page and by the hover preview.
-window.textMarkup = p => {
-  const entries = PROJECTS.map(q =>
-    `<div class="entry${q.id === p.id ? ' on' : ''}" data-id="${q.id}"><span>${q.id}</span><p>${esc(q.title)}</p></div>`).join('');
-  return `<div id="stage"><div class="inner"><p id="loc"><a id="loc-back" href="index.html?focus=${p.id}">Back</a>, <a id="loc-dir" href="${visitUrl(p)}" target="_blank" rel="noopener">Directions</a></p>` +
-    `<div id="hero">${mediaHTML(archiveSrc(p), `onerror="this.style.display='none'"`)}</div>` +
-    `</div></div>` +
-    `<main id="list"><div class="content" id="entries">${entries}</div></main>`;
+// Map page directory: number + title, then View (its Index page) and Directions (Google Maps).
+const buildDir = el => {
+  el.innerHTML = PROJECTS.map(p =>
+    `<div class="dir-item" data-id="${p.id}">` +
+    `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(p.title)}</span></a>` +
+    `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visitUrl(p)}" target="_blank" rel="noopener">Directions</a></div></div>`
+  ).join('');
 };
