@@ -1,19 +1,14 @@
 :root {
   --font: "Arial", "Helvetica", sans-serif;
   --type: 9pt;
-  /* all text */
   --map-num: 9pt;
-  /* map numbers only */
   --margin: 18pt;
   --gutter: 9pt;
   --space: 0pt;
   --tab: 20pt;
-  /* Text page: width of the number column (the text starts here) */
   --gray: #E0E0E0;
   --pin: 15pt;
   --split: 33.3333vw;
-  /* map page: the first third is white (nav + directory), the map fills the other two thirds */
-  /* map numbers: diameter of the white circle */
 }
 
 * {
@@ -44,7 +39,7 @@ a {
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 p {
