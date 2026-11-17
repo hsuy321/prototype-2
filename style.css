@@ -224,11 +224,24 @@ body.map #nav p {
   grid-column: 2 / 4;
 }
 
+#stage p {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+/* Back, Directions on the left; Print on the right edge of the image */
 #stage a {
   pointer-events: auto;
   cursor: pointer;
 }
 
+#stage .inner>p {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Back, Directions on the left; Print on the right */
 #hero {
   width: 100%;
   aspect-ratio: 8 / 5;
