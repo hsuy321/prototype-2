@@ -3,6 +3,7 @@
 const dir = document.getElementById('dir');
 const byId = id => PROJECTS.find(p => String(p.id) === String(id));
 let map;
+const phone = matchMedia('(max-width: 800px)'); // same width as the phone rules in style.css
 const pos = p => ({ lat: p.lat, lng: p.lng }); // plain lat/lng, the only shape Google Maps is given
 buildDir(dir);
 
@@ -54,7 +55,7 @@ loadGoogle().then(() => {
     if (b !== band) { band = b; map.setOptions({ styles: mapStyle(b) }); }
   });
 
-  // Numbers: white on a black circle. Click one to zoom to it.
+  // Numbers: white on a black circle. Click one to zoom to it (on a phone it opens that Index page).
   class Pin extends google.maps.OverlayView {
     constructor(p) {
       super();
@@ -62,10 +63,11 @@ loadGoogle().then(() => {
       this.el = document.createElement('div');
       this.el.className = 'pin';
       this.el.style.position = 'absolute';
-      this.el.innerHTML = `<a href="#">${p.id}</a>`;
+      this.el.innerHTML = `<a href="checklist.html?id=${p.id}">${p.id}</a>`;
       this.el.addEventListener('mouseenter', () => flag(p.id, 'hot', true));
       this.el.addEventListener('mouseleave', () => flag(p.id, 'hot', false));
-      this.el.addEventListener('click', e => { e.preventDefault(); zoomTo(p); });
+      // computer: zoom to it. phone: the link opens its Index page
+      this.el.addEventListener('click', e => { if (!phone.matches) { e.preventDefault(); zoomTo(p); } });
       google.maps.OverlayView.preventMapHitsFrom(this.el); // a click on a number is not a click on the map
     }
     onAdd() { this.getPanes().overlayMouseTarget.appendChild(this.el); }
