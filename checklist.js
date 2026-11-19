@@ -12,14 +12,14 @@ const setHero = p => {
   const t = ++swap, tmp = document.createElement('div');
   tmp.innerHTML = mediaHTML(p);
   const el = tmp.firstElementChild;
-  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => {}); };
+  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => { }); };
   el.addEventListener(el.tagName === 'VIDEO' ? 'loadeddata' : 'load', done, { once: true });
   el.addEventListener('error', done, { once: true });
 };
 
 // After REST.wait seconds with no scrolling or mouse movement, the video fades into the stock image over REST.fade seconds.
 // Any activity brings the video back.
-const REST = { wait: 5, fade: 10 };
+const REST = { wait: 3, fade: 7 };
 const hero = $('hero');
 hero.style.setProperty('--fade', REST.fade + 's');
 let idle;
