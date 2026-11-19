@@ -6,11 +6,35 @@ history.scrollRestoration = 'manual';
 
 entries.innerHTML = PROJECTS.map(p => `<div class="entry" data-id="${p.id}"><span>${p.id}</span><p>${esc(p.title)}</p></div>`).join('');
 
+// The old image/video stays on screen until the new one has its first frame, so the hero never goes blank while scrolling.
+let swap = 0;
+const setHero = p => {
+  const t = ++swap, tmp = document.createElement('div');
+  tmp.innerHTML = mediaHTML(p);
+  const el = tmp.firstElementChild;
+  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => {}); };
+  el.addEventListener(el.tagName === 'VIDEO' ? 'loadeddata' : 'load', done, { once: true });
+  el.addEventListener('error', done, { once: true });
+};
+
+// After REST.wait seconds with no scrolling or mouse movement, the video fades into the stock image over REST.fade seconds.
+// Any activity brings the video back.
+const REST = { wait: 5, fade: 10 };
+const hero = $('hero');
+hero.style.setProperty('--fade', REST.fade + 's');
+let idle;
+const wake = () => {
+  hero.classList.remove('rest');
+  clearTimeout(idle);
+  idle = setTimeout(() => hero.classList.add('rest'), REST.wait * 1000);
+};
+['scroll', 'wheel', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach(t => addEventListener(t, wake, { passive: true }));
+
 let current;
 const show = p => {
   current = String(p.id);
   entries.querySelectorAll('.entry').forEach(e => e.classList.toggle('on', e.dataset.id === current));
-  $('hero').innerHTML = mediaHTML(p);
+  setHero(p);
   $('back').href = 'index.html?focus=' + p.id;
   $('directions').href = visitUrl(p);
   history.replaceState(null, '', '?id=' + p.id);
@@ -40,3 +64,5 @@ addEventListener('scroll', () => {
     if (el && el.dataset.id !== current) show(PROJECTS.find(p => String(p.id) === el.dataset.id));
   });
 }, { passive: true });
+
+wake();

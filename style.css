@@ -149,9 +149,24 @@ body.map #nav p { flex: none; }
 #stage a { pointer-events: auto; cursor: pointer; }
 #stage .inner > p { display: flex; justify-content: space-between; } /* Back, Directions on the left; Print on the right */
 #hero {
+  position: relative;
   width: 100%;
   aspect-ratio: 8 / 5;
   overflow: hidden;
+}
+/* the stock image, laid over the video. Invisible until the page has been idle (see REST in checklist.js) */
+#hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url(images/information/1.jpg) center / cover;
+  opacity: 0;
+  transition: opacity 0.4s;      /* coming back to the video: quick */
+  pointer-events: none;
+}
+#hero.rest::after {
+  opacity: 1;
+  transition: opacity var(--fade, 10s) linear; /* going to the stock image: slow */
 }
 #hero img, #hero video {
   display: block;

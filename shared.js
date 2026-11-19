@@ -11,6 +11,7 @@ const mediaHTML = p => {
     : `<img src="${src}" alt="" ${hide}>`;
 };
 
+const placed = p => typeof p.lat === 'number' && typeof p.lng === 'number'; // no lat/lng yet = not on the map
 const visitUrl = p => `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
 
 // Loads the Google Maps script (key in config.js).
@@ -50,7 +51,7 @@ const mapStyle = band => band === 'area'
 
 // Map page directory: number + title, then View (its Index page) and Directions (Google Maps).
 const buildDir = el => {
-  el.innerHTML = PROJECTS.map(p =>
+  el.innerHTML = PROJECTS.filter(placed).map(p =>
     `<div class="dir-item" data-id="${p.id}">` +
     `<a class="dir-title" href="index.html?focus=${p.id}"><span>${p.id}</span><span>${esc(p.title)}</span></a>` +
     `<div class="dir-sub"><a class="dir-info" href="checklist.html?id=${p.id}">View</a>, <a href="${visitUrl(p)}" target="_blank" rel="noopener">Directions</a></div></div>`

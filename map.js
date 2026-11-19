@@ -77,7 +77,7 @@ loadGoogle().then(() => {
     }
     onRemove() { this.el.remove(); }
   }
-  PROJECTS.forEach(p => new Pin(p).setMap(map));
+  PROJECTS.filter(placed).forEach(p => new Pin(p).setMap(map));
 
   const focus = byId(new URLSearchParams(location.search).get('focus'));
   if (focus) {
@@ -85,9 +85,24 @@ loadGoogle().then(() => {
     map.setZoom(17);
     select(focus.id);
   } else { // start zoomed out just far enough to show every number
-    const all = new google.maps.LatLngBounds();
-    PROJECTS.forEach(p => all.extend(pos(p)));
-    map.fitBounds(all, 48); // 48px of room so no circle touches the edge
+    // fit every placed number in view. Redone if the map box changes size before anyone touches the map
+    // (the box can still be changing size right as the page loads, which leaves the fit off-center)
+    let touched = false;
+    const fit = () => {
+      const here = PROJECTS.filter(placed);
+      if (here.length < 2) { // 0 or 1 numbers: nothing to fit, so use a fixed view
+        map.setCenter(here.length ? pos(here[0]) : map.getCenter());
+        map.setZoom(15);
+        return;
+      }
+      const all = new google.maps.LatLngBounds();
+      here.forEach(p => all.extend(pos(p)));
+      map.fitBounds(all, 48); // 48px of room so no circle touches the edge
+      google.maps.event.addListenerOnce(map, 'idle', () => { if (!touched && map.getZoom() > 16) map.setZoom(16); }); // tight cluster: don't zoom to rooftops
+    };
+    fit();
+    ['pointerdown', 'wheel', 'keydown'].forEach(t => document.getElementById('gmap').addEventListener(t, () => { touched = true; }, { passive: true }));
+    new ResizeObserver(() => { if (!touched) fit(); }).observe(document.getElementById('gmap'));
   }
   map.addListener('click', () => select(null)); // click empty map: deselect
 
