@@ -13,7 +13,7 @@ const setHero = p => {
   $('hero').replaceChildren();
   tmp.innerHTML = mediaHTML(p);
   const el = tmp.firstElementChild;
-  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => {}); };
+  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => { }); };
   el.addEventListener(el.tagName === 'VIDEO' ? 'loadeddata' : 'load', done, { once: true });
   el.addEventListener('error', done, { once: true });
 };
@@ -67,3 +67,11 @@ addEventListener('scroll', () => {
 }, { passive: true });
 
 wake();
+
+// Once the page has loaded, download every image/video one at a time (nearest the current entry first),
+// so each is already in the browser's cache when you scroll to it.
+addEventListener('load', async () => {
+  const at = PROJECTS.findIndex(p => String(p.id) === current);
+  const order = PROJECTS.map((p, i) => [Math.abs(i - at), p]).sort((a, b) => a[0] - b[0]).slice(1);
+  for (const [, p] of order) { try { await (await fetch(archiveSrc(p))).blob(); } catch (e) { } }
+});
