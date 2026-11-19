@@ -6,20 +6,21 @@ history.scrollRestoration = 'manual';
 
 entries.innerHTML = PROJECTS.map(p => `<div class="entry" data-id="${p.id}"><span>${p.id}</span><p>${esc(p.title)}</p></div>`).join('');
 
-// The old image/video stays on screen until the new one has its first frame, so the hero never goes blank while scrolling.
+// Scrolling to a new entry empties the image box (white) and fills it once the new image/video has its first frame.
 let swap = 0;
 const setHero = p => {
   const t = ++swap, tmp = document.createElement('div');
+  $('hero').replaceChildren();
   tmp.innerHTML = mediaHTML(p);
   const el = tmp.firstElementChild;
-  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => { }); };
+  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => {}); };
   el.addEventListener(el.tagName === 'VIDEO' ? 'loadeddata' : 'load', done, { once: true });
   el.addEventListener('error', done, { once: true });
 };
 
 // After REST.wait seconds with no scrolling or mouse movement, the video fades into the stock image over REST.fade seconds.
 // Any activity brings the video back.
-const REST = { wait: 3, fade: 7 };
+const REST = { wait: 5, fade: 10 };
 const hero = $('hero');
 hero.style.setProperty('--fade', REST.fade + 's');
 let idle;

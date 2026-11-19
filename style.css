@@ -41,12 +41,12 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
-}
-
 p {
   margin: 0;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 /* nav: first column, fixed. Only the words take clicks; the rest of the column lets the page behind through. */
@@ -171,8 +171,7 @@ body.map #nav p {
 }
 
 .about>p,
-.about>img,
-.about>video {
+.about>img {
   grid-column: 2;
 }
 
@@ -180,8 +179,7 @@ body.map #nav p {
   grid-column: 3;
 }
 
-.about>img,
-.about>video {
+.about>img {
   display: block;
   width: 100%;
   height: auto;
@@ -249,6 +247,7 @@ body.map #nav p {
   width: 100%;
   aspect-ratio: 8 / 5;
   overflow: hidden;
+  background: #fff;
 }
 
 /* the stock image, laid over the video. Invisible until the page has been idle (see REST in checklist.js) */
@@ -358,7 +357,6 @@ html:has(#entries) {
   #entries,
   .about>p,
   .about>img,
-  .about>video,
   .about>aside {
     grid-column: 1 / -1;
   }
