@@ -13,7 +13,7 @@ const setHero = p => {
   $('hero').replaceChildren();
   tmp.innerHTML = mediaHTML(p);
   const el = tmp.firstElementChild;
-  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => { }); };
+  const done = () => { if (t !== swap) return; $('hero').replaceChildren(el); if (el.play) el.play().catch(() => {}); };
   el.addEventListener(el.tagName === 'VIDEO' ? 'loadeddata' : 'load', done, { once: true });
   el.addEventListener('error', done, { once: true });
 };
@@ -73,5 +73,56 @@ wake();
 addEventListener('load', async () => {
   const at = PROJECTS.findIndex(p => String(p.id) === current);
   const order = PROJECTS.map((p, i) => [Math.abs(i - at), p]).sort((a, b) => a[0] - b[0]).slice(1);
-  for (const [, p] of order) { try { await (await fetch(archiveSrc(p))).blob(); } catch (e) { } }
+  for (const [, p] of order) { try { await (await fetch(archiveSrc(p))).blob(); } catch (e) {} }
 });
+
+// Full screen: click the image to fill the screen with it.
+// Computer: text over the image (5/30 on the left, Close on the right). Click the left or right half, or use the arrow keys, to move between images. Esc or Close leaves.
+// Phone: just the full screen image, tap to close.
+const phone = matchMedia('(max-width: 800px)');
+const full = document.createElement('div');
+full.id = 'full';
+full.innerHTML = '<p class="bar"><span id="count"></span><a data-go="close">Close</a></p><div class="media"></div>';
+document.body.append(full);
+
+let at = 0; // index of the entry shown full screen
+const paint = () => {
+  full.querySelector('.media').innerHTML = mediaHTML(PROJECTS[at]);
+  full.querySelector('#count').textContent = (at + 1) + '/' + PROJECTS.length;
+  const m = full.querySelector('.media').firstElementChild;
+  if (m && m.play) m.play().catch(() => {});
+};
+const openFull = () => {
+  at = PROJECTS.findIndex(p => String(p.id) === current);
+  paint();
+  full.classList.add('on');
+  document.documentElement.style.overflow = 'hidden'; // the page behind doesn't scroll
+  if (full.requestFullscreen) full.requestFullscreen().catch(() => {}); // hides the browser bars where the browser allows it (not iPhone)
+};
+const closeFull = () => {
+  if (!full.classList.contains('on')) return;
+  full.classList.remove('on');
+  full.querySelector('.media').innerHTML = '';
+  document.documentElement.style.overflow = '';
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  if (String(PROJECTS[at].id) !== current) { // moved to another image: the Index page lands on it too
+    show(PROJECTS[at]);
+    scrollTo(0, entries.querySelector('.entry.on').getBoundingClientRect().top + scrollY - stage.getBoundingClientRect().height);
+  }
+};
+const step = d => { at = (at + d + PROJECTS.length) % PROJECTS.length; paint(); };
+
+$('hero').addEventListener('click', openFull);
+full.addEventListener('click', e => {
+  if (phone.matches) return closeFull();                     // phone: tap to close, nothing else
+  if (e.target.closest('[data-go="close"]')) return closeFull();
+  step(e.clientX < innerWidth / 2 ? -1 : 1);                 // computer: left half back, right half forward
+});
+full.addEventListener('mousemove', e => full.classList.toggle('left', e.clientX < innerWidth / 2)); // picks the cursor
+addEventListener('keydown', e => {
+  if (!full.classList.contains('on')) return;
+  if (e.key === 'Escape') closeFull();
+  if (!phone.matches && e.key === 'ArrowLeft') step(-1);
+  if (!phone.matches && e.key === 'ArrowRight') step(1);
+});
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) closeFull(); });

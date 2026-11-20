@@ -1,27 +1,19 @@
 :root {
   --font: "Arial", "Helvetica", sans-serif;
-  --type: 9pt;
-  /* all text */
-  --map-num: 9pt;
-  /* numbers on the map */
-  --pin: 15pt;
-  /* diameter of the circle behind a map number */
+  --type: 9pt;          /* all text */
+  --map-num: 9pt;       /* numbers on the map */
+  --pin: 15pt;          /* diameter of the circle behind a map number */
   --margin: 18pt;
   --gutter: 9pt;
   --space: 0pt;
-  --tab: 20pt;
-  /* width of the number column; text starts here */
+  --tab: 20pt;          /* width of the number column; text starts here */
   --gray: #E0E0E0;
-  --split: 33.3333vw;
-  /* map page: the first third is white (nav + directory), the map fills the rest */
+  --split: 33.3333vw;   /* map page: the first third is white (nav + directory), the map fills the rest */
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
-body {
+html, body {
   margin: 0;
   background: #fff;
   color: #000;
@@ -36,18 +28,8 @@ body {
   overflow-wrap: normal;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-p {
-  margin: 0;
-}
-
-a:hover {
-  text-decoration: underline;
-}
+a { color: inherit; text-decoration: none; }
+p { margin: 0; }
 
 /* nav: first column, fixed. Only the words take clicks; the rest of the column lets the page behind through. */
 #nav {
@@ -58,31 +40,20 @@ a:hover {
   width: calc((100vw - 2 * var(--margin) - 2 * var(--gutter)) / 3);
   pointer-events: none;
 }
-
-#nav a {
-  pointer-events: auto;
-}
-
-#nav a.active {
-  text-decoration: underline;
-}
+#nav a { pointer-events: auto; }
+#nav a.active { text-decoration: underline; }
 
 /* map page: the directory fills the rest of the column and scrolls; its text disappears under the nav links */
 body.map #nav {
   bottom: 0;
   display: flex;
   flex-direction: column;
-  padding-right: var(--margin);
-  /* lines wrap before the edge of the column */
+  padding-right: var(--margin); /* lines wrap before the edge of the column */
 }
-
-body.map #nav p {
-  flex: none;
-}
+body.map #nav p { flex: none; }
 
 #dir {
-  pointer-events: auto;
-  /* the whole column takes the scroll wheel, not just the words */
+  pointer-events: auto; /* the whole column takes the scroll wheel, not just the words */
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -91,33 +62,18 @@ body.map #nav p {
   scrollbar-width: none;
   overscroll-behavior: contain;
 }
-
-#dir::-webkit-scrollbar {
-  display: none;
-}
+#dir::-webkit-scrollbar { display: none; }
 
 /* gray until hovered (here or on the map) or selected on the map */
-.dir-item {
-  margin-bottom: var(--space);
-  color: var(--gray);
-}
-
-.dir-item:hover,
-.dir-item.hot,
-.dir-item.on {
-  color: #000;
-}
-
+.dir-item { margin-bottom: var(--space); color: var(--gray); }
+.dir-item:hover, .dir-item.hot, .dir-item.on { color: #000; }
 .dir-title {
   display: grid;
   grid-template-columns: var(--tab) 1fr;
   width: max-content;
   max-width: 100%;
 }
-
-.dir-sub {
-  padding-left: var(--tab);
-}
+.dir-sub { padding-left: var(--tab); }
 
 /* map: the right two thirds */
 #map {
@@ -130,12 +86,7 @@ body.map #nav p {
   background: #f2f2f2;
 }
 
-#gmap {
-  width: 100%;
-  height: 100%;
-}
-
-/* Google Maps fills this box; keep it inside #map */
+#gmap { width: 100%; height: 100%; } /* Google Maps fills this box; keep it inside #map */
 
 /* numbers on the map: white on a black circle */
 .pin a {
@@ -169,41 +120,16 @@ body.map #nav p {
   align-content: start;
   padding: var(--margin);
 }
-
-.about>p,
-.about>img {
-  grid-column: 2;
-}
-
-.about>aside {
-  grid-column: 3;
-}
-
-.about>img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+.about > p, .about > img { grid-column: 2; }
+.about > aside { grid-column: 3; }
+.about > img { display: block; width: 100%; height: auto; }
 
 /* paragraphs: first line tabbed in, the rest flush left; the very first paragraph is flush left throughout */
-.about>p {
-  text-indent: var(--tab);
-}
-
-.about>p:first-of-type {
-  text-indent: 0;
-}
-
+.about > p { text-indent: var(--tab); }
+.about > p:first-of-type { text-indent: 0; }
 /* footnotes: number flush left, wrapped lines tabbed in */
-.about aside p {
-  padding-left: var(--tab);
-  text-indent: calc(-1 * var(--tab));
-}
-
-.about sup {
-  font-size: .7em;
-  line-height: 0;
-}
+.about aside p { padding-left: var(--tab); text-indent: calc(-1 * var(--tab)); }
+.about sup { font-size: .7em; line-height: 0; }
 
 /* index page: the image is fixed at the top and the titles scroll behind it */
 #stage {
@@ -216,32 +142,12 @@ body.map #nav p {
   grid-template-columns: repeat(3, 1fr);
   column-gap: var(--gutter);
   padding: var(--margin) var(--margin) var(--space);
-  pointer-events: none;
-  /* the titles behind stay scrollable */
+  pointer-events: none; /* the titles behind stay scrollable */
 }
-
-#stage .inner {
-  grid-column: 2 / 4;
-}
-
-#stage p {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
-/* Back, Directions on the left; Print on the right edge of the image */
-#stage a {
-  pointer-events: auto;
-  cursor: pointer;
-}
-
-#stage .inner>p {
-  display: flex;
-  justify-content: space-between;
-}
-
-/* Back, Directions on the left; Print on the right */
+#stage .inner { grid-column: 2 / 4; }
+#stage p { display: flex; justify-content: space-between; align-items: baseline; } /* Back, Directions on the left; Print on the right edge of the image */
+#stage a { pointer-events: auto; cursor: pointer; }
+#stage .inner > p { display: flex; justify-content: space-between; } /* Back, Directions on the left; Print on the right */
 #hero {
   position: relative;
   width: 100%;
@@ -249,7 +155,6 @@ body.map #nav p {
   overflow: hidden;
   background: #fff;
 }
-
 /* the stock image, laid over the video. Invisible until the page has been idle (see REST in checklist.js) */
 #hero::after {
   content: '';
@@ -257,23 +162,56 @@ body.map #nav p {
   inset: 0;
   background: url(images/information/1.jpg) center / cover;
   opacity: 0;
-  transition: opacity 0.4s;
-  /* coming back to the video: quick */
+  transition: opacity 0.4s;      /* coming back to the video: quick */
   pointer-events: none;
 }
-
 #hero.rest::after {
   opacity: 1;
-  transition: opacity var(--fade, 10s) linear;
-  /* going to the stock image: slow */
+  transition: opacity var(--fade, 10s) linear; /* going to the stock image: slow */
 }
-
-#hero img,
-#hero video {
+#hero img, #hero video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* click the image: it fills the whole screen (see "full screen" in checklist.js) */
+#hero { pointer-events: auto; cursor: zoom-in; }
+#full {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #fff;
+  cursor: zoom-out;               /* phone: tap anywhere to close */
+  isolation: isolate;
+}
+#full.on { display: block; }
+#full .bar { display: none; }                    /* computer only, see below */
+#full .media, #full img, #full video { display: block; width: 100%; height: 100%; }
+#full img, #full video { object-fit: cover; }   /* fills the screen edge to edge (the sides crop a little) */
+
+/* computer: the image fills the whole screen, with the number (left) and Close (right) over it.
+   Click the left half for the previous image, the right half for the next (the cursor shows which).
+   The text is white in "difference" blend mode, so it stays readable on light and dark images. */
+@media (min-width: 801px) {
+  #full.on { cursor: e-resize; }       /* the browser's own right arrow. For the plain pointer, use: default */
+  #full.left { cursor: w-resize; }     /* the browser's own left arrow */
+  #full .bar {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    padding: var(--margin) var(--margin) 0;   /* the top margin */
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;                     /* the arrow cursor shows here too */
+  }
+  #full .bar a { pointer-events: auto; cursor: pointer; }
 }
 
 /* --stage-h and --pad-b are set by checklist.js */
@@ -286,27 +224,16 @@ body.map #nav p {
   padding: var(--stage-h, 60vh) var(--margin) var(--pad-b, 40vh);
   cursor: default;
 }
-
-#entries {
-  grid-column: 2 / 4;
-}
-
+#entries { grid-column: 2 / 4; }
 .entry {
   display: grid;
   grid-template-columns: var(--tab) 1fr;
   margin-bottom: var(--space);
   color: var(--gray);
-  scroll-snap-align: start;
-  /* scrolling always lands a title right under the image */
+  scroll-snap-align: start; /* scrolling always lands a title right under the image */
 }
-
-.entry.on {
-  color: #000;
-}
-
-html:has(#entries) {
-  scroll-snap-type: y mandatory;
-}
+.entry.on { color: #000; }
+html:has(#entries) { scroll-snap-type: y mandatory; }
 
 /* map page: hovering "View" shows that image over the map, in the same spot as on the Index page */
 #preview {
@@ -318,46 +245,14 @@ html:has(#entries) {
   pointer-events: none;
   transition: opacity .25s;
 }
-
-#preview.on {
-  opacity: 1;
-}
-
-#preview .inner {
-  padding-top: calc(1.1 * var(--type));
-}
-
-/* the line the Back / Directions links take on the Index page */
+#preview.on { opacity: 1; }
+#preview .inner { padding-top: calc(1.1 * var(--type)); } /* the line the Back / Directions links take on the Index page */
 
 @media (max-width: 800px) {
-  #nav {
-    width: auto;
-  }
-
-  #map {
-    left: 0;
-  }
-
-  #dir {
-    display: none;
-  }
-
-  /* map page: no directory on a phone, tap a number to open its Index page */
-  body.index #nav {
-    display: none;
-  }
-
-  /* Index page: Back, Directions takes the place of the nav */
-  .about {
-    padding-top: calc(var(--margin) + 1.1 * var(--type));
-  }
-
-  /* Information: text starts right under the nav */
-  #stage .inner,
-  #entries,
-  .about>p,
-  .about>img,
-  .about>aside {
-    grid-column: 1 / -1;
-  }
+  #nav { width: auto; }
+  #map { left: 0; }
+  #dir { display: none; }                    /* map page: no directory on a phone, tap a number to open its Index page */
+  body.index #nav { display: none; }         /* Index page: Back, Directions takes the place of the nav */
+  .about { padding-top: calc(var(--margin) + 1.1 * var(--type)); } /* Information: text starts right under the nav */
+  #stage .inner, #entries, .about > p, .about > img, .about > aside { grid-column: 1 / -1; }
 }
